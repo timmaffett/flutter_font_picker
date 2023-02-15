@@ -30,15 +30,23 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-
-
+enum FontListType { subset, complete }
 class _MyHomePageState extends State<MyHomePage> {
-  String _selectedFont = "Roboto";
-  TextStyle? _selectedFontTextStyle;
+  String _selectedFont = 'Roboto';
 
-  final List<String> _myGoogleFonts = GoogleFonts.asMap().keys.toList();
+  late TextStyle? _selectedFontTextStyle = GoogleFonts.getFont(_selectedFont);
 
-  final List<String> _myGoogleFontsSMALLLIST = [
+  double _fontPickerListFontSize = 16.0;
+
+  double _previewFontSize = 24.0;
+
+  FontListType _fontListType = FontListType.subset;
+
+  late List<String> _myGoogleFonts = _subsetListOfGoogleFonts;
+
+  final List<String> _completeGoogleFonts = GoogleFonts.asMap().keys.toList();
+
+  final List<String> _subsetListOfGoogleFonts = [
     "Abril Fatface",
     "Aclonica",
     "Alegreya Sans",
@@ -92,9 +100,20 @@ class _MyHomePageState extends State<MyHomePage> {
     "Work Sans",
     "Zilla Slab",
   ];
+
+  void _onFontListTypeChange( FontListType? val ) {
+    setState(() {
+      _fontListType = val ?? FontListType.subset;
+      if(_fontListType == FontListType.subset) {
+        _myGoogleFonts = _subsetListOfGoogleFonts;
+      } else {
+        _myGoogleFonts = _completeGoogleFonts;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    const double previewFontSize = 24.0;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -105,6 +124,76 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    'List of fonts is :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Radio<FontListType>(
+                    value: FontListType.subset,
+                    groupValue: _fontListType,
+                    onChanged: _onFontListTypeChange,
+                  ),
+                  const Text(
+                    'Subset of GoogleFonts',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Radio<FontListType>(
+                    value: FontListType.complete,
+                    groupValue: _fontListType,
+                    onChanged: _onFontListTypeChange,
+                  ),
+                  const Text(
+                    'All GoogleFonts',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    'Font size for fonts in picker list :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Slider(
+                    min: 10.0,
+                    max: 64.0,
+                    value: _fontPickerListFontSize,
+                    onChanged: (value) {
+                      setState(() {
+                        _fontPickerListFontSize = value.round().toDouble();
+                      });
+                    },
+                  ),
+                  Text(
+                    '$_fontPickerListFontSize',
+                    style: const TextStyle(fontSize: 16.0),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child:Container( height: 2, color: Colors.black ),
+              ),
+              const Text(
+                'Examples of FontPicker() use :',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+              SizedBox(height: 12),
               ElevatedButton(
                 child: const Text('Pick a font (with a screen)'),
                 onPressed: () {
@@ -123,13 +212,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                         },
                         googleFonts: _myGoogleFonts,
-                        fontSizeForListPreview: 36.0,
+                        fontSizeForListPreview: _fontPickerListFontSize,
 
                       ),
                     ),
                   );
                 },
               ),
+              const SizedBox(height:16),
               ElevatedButton(
                 child: const Text('Pick a font (with a dialog)'),
                 onPressed: () {
@@ -153,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 );
                               },
                               googleFonts: _myGoogleFonts,
-                              fontSizeForListPreview: 24.0,
+                              fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
                         ),
@@ -180,6 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: TextField(
                       readOnly: true,
                       textAlign: TextAlign.center,
+                      style: _selectedFontTextStyle?.copyWith(fontSize:_fontPickerListFontSize),
                       decoration: InputDecoration(
                         suffixIcon: const Icon(Icons.arrow_drop_down_sharp),
                         hintText: _selectedFont,
@@ -193,19 +284,49 @@ class _MyHomePageState extends State<MyHomePage> {
                               onFontChanged: (font) {
                                 setState(() {
                                   _selectedFont = font.fontFamily;
-                                  _selectedFontTextStyle = font.toTextStyle().copyWith(fontSize:previewFontSize);
+                                  _selectedFontTextStyle = font.toTextStyle();
                                 });
                                 debugPrint(
                                   "${font.fontFamily} with font weight ${font.fontWeight} and font style ${font.fontStyle}. FontSpec: ${font.toFontSpec()}",
                                 );
                               },
                               googleFonts: _myGoogleFonts,
-                              fontSizeForListPreview: 36.0,
+                              fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
                         );
                       },
                     ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child:Container( height: 2, color: Colors.black ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    'Preview font size :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Slider(
+                    min: 10.0,
+                    max: 96.0,
+                    value: _previewFontSize,
+                    onChanged: (value) {
+                      setState(() {
+                        _previewFontSize = value.round().toDouble();
+                      });
+                    },
+                  ),
+                  Text(
+                    '$_previewFontSize',
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                 ],
               ),
@@ -221,26 +342,34 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Font: $_selectedFont',
-                              style: _selectedFontTextStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              'The quick brown fox jumped',
-                              style: _selectedFontTextStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              'over the lazy dog',
-                              style: _selectedFontTextStyle,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                      child: ClipRect(
+                        clipBehavior: Clip.hardEdge,
+                        child: OverflowBox(
+                          alignment: Alignment.center,
+                          minWidth: 0.0,
+                          minHeight: 0.0,
+                          maxWidth: double.infinity,
+                          maxHeight: double.infinity,   
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Font: $_selectedFont',
+                                style: _selectedFontTextStyle?.copyWith(fontSize:_previewFontSize),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                'The quick brown fox jumped',
+                                style: _selectedFontTextStyle?.copyWith(fontSize:_previewFontSize),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                'over the lazy dog',
+                                style: _selectedFontTextStyle?.copyWith(fontSize:_previewFontSize),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
