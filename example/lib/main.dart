@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_font_picker/flutter_font_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,10 +30,15 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
+
 class _MyHomePageState extends State<MyHomePage> {
   String _selectedFont = "Roboto";
   TextStyle? _selectedFontTextStyle;
-  final List<String> _myGoogleFonts = [
+
+  final List<String> _myGoogleFonts = GoogleFonts.asMap().keys.toList();
+
+  final List<String> _myGoogleFontsSMALLLIST = [
     "Abril Fatface",
     "Aclonica",
     "Alegreya Sans",
@@ -88,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
   @override
   Widget build(BuildContext context) {
+    const double previewFontSize = 24.0;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -116,6 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                         },
                         googleFonts: _myGoogleFonts,
+                        fontSizeForListPreview: 36.0,
+
                       ),
                     ),
                   );
@@ -144,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 );
                               },
                               googleFonts: _myGoogleFonts,
+                              fontSizeForListPreview: 24.0,
                             ),
                           ),
                         ),
@@ -183,13 +193,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               onFontChanged: (font) {
                                 setState(() {
                                   _selectedFont = font.fontFamily;
-                                  _selectedFontTextStyle = font.toTextStyle();
+                                  _selectedFontTextStyle = font.toTextStyle().copyWith(fontSize:previewFontSize);
                                 });
                                 debugPrint(
                                   "${font.fontFamily} with font weight ${font.fontWeight} and font style ${font.fontStyle}. FontSpec: ${font.toFontSpec()}",
                                 );
                               },
                               googleFonts: _myGoogleFonts,
+                              fontSizeForListPreview: 36.0,
                             ),
                           ),
                         );
@@ -217,14 +228,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             Text(
                               'Font: $_selectedFont',
                               style: _selectedFontTextStyle,
+                              textAlign: TextAlign.center,
                             ),
                             Text(
                               'The quick brown fox jumped',
                               style: _selectedFontTextStyle,
+                              textAlign: TextAlign.center,
                             ),
                             Text(
                               'over the lazy dog',
                               style: _selectedFontTextStyle,
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),

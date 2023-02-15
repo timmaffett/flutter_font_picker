@@ -21,6 +21,7 @@ class FontPickerUI extends StatefulWidget {
   final int recentsCount;
   final String lang;
   final bool showFontVariants;
+  final double fontSizeForListPreview;
 
   FontPickerUI({
     super.key,
@@ -32,6 +33,7 @@ class FontPickerUI extends StatefulWidget {
     required this.initialFontFamily,
     required this.lang,
     this.showFontVariants = true,
+    this.fontSizeForListPreview = 16.0,
   });
 
   @override
@@ -167,6 +169,7 @@ class _FontPickerUIState extends State<FontPickerUI> {
                         style: TextStyle(
                           fontFamily:
                               GoogleFonts.getFont(f.fontFamily).fontFamily,
+                          fontSize: widget.fontSizeForListPreview,
                         ).copyWith(
                           color: DefaultTextStyle.of(context).style.color,
                         ),
