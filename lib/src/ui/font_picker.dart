@@ -73,7 +73,7 @@ class FontPicker extends StatefulWidget {
   /// If you need a translation in another language: take a look at the dictionaries variable in constants.dart, and send me the translations for your language.
   final String lang;
 
-  /// Font size to use for the list preview
+  /// Font size to use for the preview of fonts in font picker list
   final double fontSizeForListPreview;
 
   /// Creates a widget that lets the user select a Google font from a provided list.
