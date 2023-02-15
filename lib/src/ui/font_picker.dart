@@ -73,6 +73,9 @@ class FontPicker extends StatefulWidget {
   /// If you need a translation in another language: take a look at the dictionaries variable in constants.dart, and send me the translations for your language.
   final String lang;
 
+  /// Font size to use for the list preview
+  final double fontSizeForListPreview;
+
   /// Creates a widget that lets the user select a Google font from a provided list.
   ///
   /// The [onFontChanged] function retrieves the font that the user selects with an object containing details like the font's name, weight, style, etc.
@@ -88,6 +91,7 @@ class FontPicker extends StatefulWidget {
     required this.onFontChanged,
     this.initialFontFamily,
     this.lang = "en",
+    this.fontSizeForListPreview = 16.0,
   });
 
   @override
@@ -113,6 +117,7 @@ class _FontPickerState extends State<FontPicker> {
             initialFontFamily: widget.initialFontFamily ?? 'Roboto',
             lang: widget.lang,
             showFontVariants: widget.showFontVariants,
+            fontSizeForListPreview: widget.fontSizeForListPreview,
           )
         : Scaffold(
             appBar: AppBar(title: const Text("Pick a font:")),
@@ -125,6 +130,7 @@ class _FontPickerState extends State<FontPicker> {
               initialFontFamily: widget.initialFontFamily ?? 'Roboto',
               lang: widget.lang,
               showFontVariants: widget.showFontVariants,
+              fontSizeForListPreview: widget.fontSizeForListPreview,
             ),
           );
   }
