@@ -177,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                   Text(
-                    '$_fontPickerListFontSize',
+                    '${_fontPickerListFontSize}px',
                     style: const TextStyle(fontSize: 16.0),
                   ),
                 ],
@@ -325,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                   Text(
-                    '$_previewFontSize',
+                    '${_previewFontSize}px',
                     style: const TextStyle(fontSize: 16.0),
                   ),
                 ],
