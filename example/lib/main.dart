@@ -40,6 +40,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool _showFontInfo = true;
 
+  bool _showListPreviewSampleTextInput = false;
+
+  String _listPreviewSampleText = '';
+
+  double _sampleTextFontSize = 14.0;
+
   double _fontPickerListFontSize = 16.0;
 
   double _previewFontSize = 24.0;
@@ -201,6 +207,67 @@ class _MyHomePageState extends State<MyHomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
+                  Expanded( child: FontSample(
+                              onSampleTextChanged: (newSample) {
+                                setState(() {
+                                  _listPreviewSampleText = newSample;
+                                });
+                              },
+                            ),
+                  ),
+                  const SizedBox(width: 30),
+                  const Text(
+                    'Allow editing of list preview sample text :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Checkbox(
+                    value: _showListPreviewSampleTextInput,
+                    onChanged: (checked) {
+                      setState(() {
+                        _showListPreviewSampleTextInput = checked ?? false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+
+
+
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
+                    'Font size for sample text :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  Slider(
+                    min: 10.0,
+                    max: 64.0,
+                    value: _sampleTextFontSize,
+                    onChanged: (value) {
+                      setState(() {
+                        _sampleTextFontSize = value.round().toDouble();
+                      });
+                    },
+                  ),
+                  Text(
+                    '${_sampleTextFontSize}px',
+                    style: const TextStyle(fontSize: 16.0),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
                   const Text(
                     'Font size for fonts in picker list :',
                     style: TextStyle(
@@ -229,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child:Container( height: 2, color: Colors.black ),
               ),
               const Text(
-                'Examples of FontPicker() use :',
+                'Examples of FontPicker() (using above settings):',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16.0,
@@ -256,6 +323,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         googleFonts: _myGoogleFonts,
                         showFontVariants: _showFontVariants,
                         showFontInfo: _showFontInfo,
+                        showListPreviewSampleTextInput: _showListPreviewSampleTextInput,
+                        listPreviewSampleText: _listPreviewSampleText,
+                        previewSampleTextFontSize: _sampleTextFontSize,
                         fontSizeForListPreview: _fontPickerListFontSize,
 
                       ),
@@ -289,6 +359,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               googleFonts: _myGoogleFonts,
                               showFontVariants: _showFontVariants,
                               showFontInfo: _showFontInfo,
+                              showListPreviewSampleTextInput: _showListPreviewSampleTextInput,
+                              listPreviewSampleText: _listPreviewSampleText,
+                              previewSampleTextFontSize: _sampleTextFontSize,
                               fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
@@ -339,6 +412,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               googleFonts: _myGoogleFonts,
                               showFontVariants: _showFontVariants,
                               showFontInfo: _showFontInfo,
+                              showListPreviewSampleTextInput: _showListPreviewSampleTextInput,
+                              listPreviewSampleText: _listPreviewSampleText,
+                              previewSampleTextFontSize: _sampleTextFontSize,
                               fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
@@ -426,6 +502,74 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class FontSample extends StatefulWidget {
+  final String initialSampleText;
+  final ValueChanged<String> onSampleTextChanged;
+  const FontSample({super.key, this.initialSampleText = '', required this.onSampleTextChanged});
+
+  @override
+  _FontSampleState createState() => _FontSampleState();
+}
+
+class _FontSampleState extends State<FontSample> {
+  bool _isSampleFocused = false;
+  late final TextEditingController sampleController;
+
+  @override
+  void initState() {
+    super.initState();
+    sampleController = TextEditingController(text:widget.initialSampleText);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FocusScope(
+      child: Focus(
+        onFocusChange: (focus) {
+          setState(() {
+            _isSampleFocused = focus;
+          });
+        },
+        child: TextFormField(
+          controller: sampleController,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.list,
+            ),
+            label:  const Text(
+                    'List preview sample text',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+            suffixIcon: _isSampleFocused
+                ? IconButton(
+                    icon: const Icon(Icons.cancel),
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      sampleController.clear();
+                      widget.onSampleTextChanged('');
+                    },
+                  )
+                : null,
+            hintText: 'Optional sample text to add to each font preview in list',
+            hintStyle: const TextStyle(fontSize: 14.0),
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            errorBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+          ),
+          onChanged: widget.onSampleTextChanged,
         ),
       ),
     );
