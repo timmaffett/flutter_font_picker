@@ -36,6 +36,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late TextStyle? _selectedFontTextStyle = GoogleFonts.getFont(_selectedFont);
 
+  bool _showFontVariants = true;
+
+  bool _showFontInfo = true;
+
   double _fontPickerListFontSize = 16.0;
 
   double _previewFontSize = 24.0;
@@ -160,6 +164,44 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   const Text(
+                    'Show font variants :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Checkbox(
+                    value: _showFontVariants,
+                    onChanged: (checked) {
+                      setState(() {
+                        _showFontVariants = checked ?? false;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 30),
+                  const Text(
+                    'Show font info :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Checkbox(
+                    value: _showFontInfo,
+                    onChanged: (checked) {
+                      setState(() {
+                        _showFontInfo = checked ?? false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text(
                     'Font size for fonts in picker list :',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -212,6 +254,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                         },
                         googleFonts: _myGoogleFonts,
+                        showFontVariants: _showFontVariants,
+                        showFontInfo: _showFontInfo,
                         fontSizeForListPreview: _fontPickerListFontSize,
 
                       ),
@@ -243,6 +287,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 );
                               },
                               googleFonts: _myGoogleFonts,
+                              showFontVariants: _showFontVariants,
+                              showFontInfo: _showFontInfo,
                               fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
@@ -291,6 +337,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 );
                               },
                               googleFonts: _myGoogleFonts,
+                              showFontVariants: _showFontVariants,
+                              showFontInfo: _showFontInfo,
                               fontSizeForListPreview: _fontPickerListFontSize,
                             ),
                           ),
