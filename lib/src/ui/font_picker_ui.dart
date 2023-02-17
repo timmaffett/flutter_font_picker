@@ -100,8 +100,10 @@ class _FontPickerUIState extends State<FontPickerUI> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 5 / 6,
+      height: size.height * 5 / 6,
       child: Column(
         children: [
           Padding(
@@ -301,17 +303,21 @@ class _FontPickerUIState extends State<FontPickerUI> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       listPreviewSampleText!=null && !isBeingSelected 
-                      ? Text(
-                          listPreviewSampleText!,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                              fontFamily:
-                                  GoogleFonts.getFont(f.fontFamily).fontFamily,
-                              fontSize: widget.fontSizeForListPreview,
-                          ).copyWith(
-                            color: DefaultTextStyle.of(context).style.color,
-                          ),
-                        ) : Container(),
+                      ? ConstrainedBox( 
+                          constraints: BoxConstraints(maxWidth: size.width/3),
+                          child:Text(
+                            listPreviewSampleText!,
+                            overflow: TextOverflow.clip,
+                            style: TextStyle(
+                                fontFamily:
+                                    GoogleFonts.getFont(f.fontFamily).fontFamily,
+                                fontSize: widget.fontSizeForListPreview,
+                            ).copyWith(
+                              color: DefaultTextStyle.of(context).style.color,
+                            ),
+                          ), 
+                        )
+                        : Container(),
                       isBeingSelected
                       ? TextButton(
                           child: Text(

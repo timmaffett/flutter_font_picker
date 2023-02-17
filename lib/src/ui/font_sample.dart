@@ -46,7 +46,7 @@ class _FontSampleState extends State<FontSample> {
                     },
                   )
                 : null,
-            hintText: 'List preview sample text', //translations.d["listPreviewSample"],
+            hintText: translations.d['List preview sample text'],
             hintStyle: const TextStyle(fontSize: 14.0),
             border: InputBorder.none,
             focusedBorder: InputBorder.none,
