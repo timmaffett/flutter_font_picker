@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 
+// ignore: avoid_relative_lib_imports
 import '../lib/src/constants/constants.dart';
 
 
@@ -17,7 +18,6 @@ import '../lib/src/constants/constants.dart';
 const _googleFontsAPIJsonRawUrl = 'https://www.googleapis.com/webfonts/v1/webfonts?key=';
 
 /// Path to our output constants.dart file.
-const _outputFilePath = 'lib/src/';
 const _constantsFileName = 'constants.dart';
 
 const Map<String,String> variantMap = {
@@ -70,60 +70,6 @@ Map<String,String> makeStringStringMap(Map<String,dynamic>? dmap) {
 
   return smap;
 }
-
-/*
-String parseGitHubFilenameIntoUnicodeString(String emojiFilename) {
-  const variationSelector = 0xFE0F;
-  const zeroWidthJoiner = 0x200D;
-
-  try {
-    final String? rawHexList = gitHubEmojiUnicodeFromFilenamePattern
-        .firstMatch(emojiFilename)
-        ?.group(1);
-    if (rawHexList == null) {
-      // This is a GitHub custom emoji and it is represented by a PNG image only and
-      // there is no equivalent Unicode.  We have to ingore.
-      return '';
-    }
-    var legacyUsedVariationCode = false;
-    if (legacyEmojisUsedVariationModifier.contains(rawHexList)) {
-      legacyUsedVariationCode = true;
-    }
-    final rawCodePointsHex = rawHexList
-        .split('-')
-        .map((hexstr) => int.parse(hexstr, radix: 16))
-        .toList();
-    final codePointsHex = <int>[];
-
-    if (legacyUsedVariationCode) {
-      // Just add single variation selector.
-      codePointsHex.addAll(rawCodePointsHex);
-      codePointsHex.add(variationSelector);
-    } else {
-      // Now insert the join zero width and variation select modifying Unicode chars.
-      for (var i = 0; i < rawCodePointsHex.length; i++) {
-        final codePointAtIndex = rawCodePointsHex[i];
-        codePointsHex.add(codePointAtIndex);
-        if (i < (rawCodePointsHex.length - 1)) {
-          codePointsHex.add(variationSelector);
-          // # and 0-9 don't use Zero Width Joiner.
-          if (codePointAtIndex == 0x23 ||
-              (codePointAtIndex >= 0x30 && codePointAtIndex <= 0x39)) {
-            // Don't add Zero Width Joiner.
-          } else {
-            codePointsHex.add(zeroWidthJoiner);
-          }
-        }
-      }
-    }
-    return String.fromCharCodes(codePointsHex);
-  } catch (e) {
-    print(
-        'Invalid/Non-Conformant emoji filename encountered "$emojiFilename"!');
-    return (errorSpecialReplacement);
-  }
-}
-*/
 
 // ignore: long-method
 Future<void> main(List<String> args) async {
@@ -209,8 +155,6 @@ Future<void> main(List<String> args) async {
       File localFile = File(inputJsonFilename);
 
       apiJson = localFile.readAsStringSync();
-
-      print(apiJson.substring(0,320));
     } catch (e) {
       print(e.toString());
       exit(1);
@@ -221,22 +165,13 @@ Future<void> main(List<String> args) async {
     final client = HttpClient();
     final request = await client.getUrl(Uri.parse(_googleFontsAPIJsonRawUrl+googleFontAPIKey));
     final response = await request.close();
- /*   final shortcodeToEmoji = jsonDecode(
-            await response.cast<List<int>>().transform(utf8.decoder).join(''))
-        .map((String alias, dynamic filename) => MapEntry(
-            alias, parseGitHubFilenameIntoUnicodeString(filename as String)))
-        .cast<String, String>() as Map<String, String>;
-*/
-//HttpClientRequest
+ 
     if(response.statusCode != HttpStatus.ok) {
       // Unexpected status returned.
       print('Request to ${_googleFontsAPIJsonRawUrl}XXX returned UNEXPECTED status code ${response.statusCode}');
       exit(1);
     }
-     apiJson = await response.transform(utf8.decoder).join();     
-
-      print(apiJson.substring(0,320));
-
+     apiJson = await response.transform(utf8.decoder).join();
   }
 
   /*  EXAMPLE head of API Json:
@@ -436,6 +371,7 @@ Future<void> main(List<String> args) async {
     }
   }
   
+  // Display summary info of whats been found/changes from previous version.
   print('${allEncountedCategories.length} categories found - ${newCategories.length} new categories detected:');
   print('$newCategories');
   if(removedCategories.isNotEmpty) {
@@ -460,8 +396,6 @@ Future<void> main(List<String> args) async {
     print('$removedFonts');
   }
 
-
-
   print('Including ${fontMap.length} fonts in output constants.dart');
   if(googleFontsPackageFontList.isEmpty) {
     print('No googlefonts package font list was supplied so including all fonts from API json.');
@@ -469,6 +403,7 @@ Future<void> main(List<String> args) async {
     print('Skipped $skippedFonts that were not included in the supplied googlefonts package font list file.');
   }
 
+  // Write out constants.dart file here
   final constantsContent = StringBuffer('''
 // GENERATED FILE. DO NOT EDIT.
 //

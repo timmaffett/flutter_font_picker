@@ -396,7 +396,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;   
-    print('Size = $size ');
 
     return Scaffold(
       appBar: AppBar(
