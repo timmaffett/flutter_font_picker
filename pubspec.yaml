@@ -18,7 +18,8 @@ dev_dependencies:
   dart_code_metrics: ^4.15.2
   flutter_test:
     sdk: flutter
-
+  args: ^2.4.0
+  
 flutter:
 
 
