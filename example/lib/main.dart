@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_font_picker/flutter_font_picker.dart';
+// ignore: depend_on_referenced_packages
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:expandable/expandable.dart';
-
+import 'package:device_preview/device_preview.dart'; // required when useDevicePreview==true
 import 'flexible.dart';
 
+/// Set [useDevicePreview] to allow testing layouts on virtual device screens
+const useDevicePreview = false;
+
 void main() {
-  runApp(const MyApp());
+  if(useDevicePreview) {
+    //TEST various on various device screens//
+    runApp(DevicePreview(
+            builder: (context) => const MyApp(), // Wrap your app
+            enabled: true,
+          ));
+  } else {
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -127,19 +138,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  bool configPanelExpanded = false;
+  bool? configPanelExpanded;
 
-  List<Widget> buildOptionsCustomizationPanel(BuildContext context) {
+  List<Widget> buildFlexibleOptionsCustomizationPanel(BuildContext context) {
+    final size = MediaQuery.of(context).size; 
+    var willSplitRows = Splittable.willSplitRows(context);
+    final bool useExpandPanel = willSplitRows || (size.height<400);
+    // if we are going to use the expand panel because short then FORCE split
+    if(useExpandPanel && !willSplitRows) willSplitRows = true;
 
-    bool willSplitRows = Splittable.willSplitRows(context);
+    // we set the initial value of configPanelExpanded depending on
+    // how we initially have to render it.  If we don't initially have
+    // to split the rows then we will init it to 'expanded', that way if the
+    // window shrinks and we are forced to use it it will already be expanded,
+    // (as it is when it is NOT rendered in a panel)
+    configPanelExpanded ??= !useExpandPanel;
 
-    MainAxisAlignment mainAxisAlignment = willSplitRows ? MainAxisAlignment.start 
+    final mainAxisAlignment = willSplitRows ? MainAxisAlignment.start 
                                       : MainAxisAlignment.center;
-
-    List<Widget> controlPanelItems = [
+    final controlPanelItems = <Widget>[
               ...Splittable.splittableRow(
                 context: context,
-                splitOn: SplitOn<Radio<FontListType>>(),
+                splitOn: Radio<FontListType>,
                 splitWidgetBehavior:SplitWidgetBehavior.includeInNextRow,
                 mainAxisAlignment: mainAxisAlignment,
                 children: <Widget>[
@@ -215,18 +235,22 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
              ...Splittable.splittableRow(
                 context: context,
+                forceSplit: useExpandPanel || size.width<=850,
                 splitAtIndices: [ 1 ],
                 splitWidgetBehavior:SplitWidgetBehavior.exclude,
                 mainAxisAlignment: mainAxisAlignment,
                 children: <Widget>[
-                  Expanded( child: 
-                            FontListPreviewSample(
-                              onSampleTextChanged: (newSample) {
-                                setState(() {
-                                  _listPreviewSampleText = newSample;
-                                });
-                              },
-                            ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: !useExpandPanel ? 300 : size.width*0.8,
+                    ),
+                    child: FontListPreviewSample(
+                      onSampleTextChanged: (newSample) {
+                        setState(() {
+                          _listPreviewSampleText = newSample;
+                        });
+                      },
+                    ),
                   ),
                   const SizedBox(width: 30),
                   const Text(
@@ -247,9 +271,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
+              const SizedBox(height:10),
               ...Splittable.splittableRow(
                 context: context,
-                splitOn: SplitOn<Slider>(),
+                splitOn: Slider,
                 splitWidgetBehavior:SplitWidgetBehavior.includeInNextRow,
                 mainAxisAlignment: mainAxisAlignment,
                 children: <Widget>[
@@ -274,7 +299,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               ...Splittable.splittableRow(
                 context: context,
-                splitOn: SplitOn<Slider>(),
+                splitOn: Slider,
                 splitWidgetBehavior:SplitWidgetBehavior.includeInNextRow,
                 mainAxisAlignment: mainAxisAlignment,
                 children: <Widget>[
@@ -303,67 +328,76 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
     ];
 
-    var heading = Container(
-                color: Colors.teal,
-                padding: const EdgeInsets.fromLTRB(20.0, 14.0, 6.0, 0),
-                child: Text(
-                willSplitRows ?
-                  'FontPicker() configuration settings' 
-                  : 'Optional settings to configure FontPicker() :',
-                
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14.0,
-                ),
-              ),
-            );
-    var headingSpacer = const SizedBox(height: 12);
+    final controlPanelColumn = Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    ...controlPanelItems,
+                  ],
+                );
 
-
+    // Return either the control panel widgets directly or place them in a 
+    // ExpansionPanelList/ExpansionPanel.
     return [
-      ExpansionPanelList(
+      if(!useExpandPanel) ...[
+            const SizedBox(height: 12),
+            const Text(
+              'Optional settings to configure FontPicker() :',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+      !useExpandPanel ?
+        controlPanelColumn
+      : ExpansionPanelList(
         animationDuration: const Duration(milliseconds:500),
         expandIconColor: Colors.green,
         expandedHeaderPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         elevation:1,
         children: [
             ExpansionPanel(
-              backgroundColor: Color.fromARGB(255,220,220,220),
+              backgroundColor: const Color.fromARGB(255,220,220,220),
               body: Container(
                 padding: const EdgeInsets.fromLTRB(20, 8, 10, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    ...controlPanelItems,
-                  ],
-                ),
+                child: controlPanelColumn,
               ),
               headerBuilder: (BuildContext context, bool isExpanded) {
-                return heading;
+                return Container(
+                    color: Colors.teal,
+                    padding: const EdgeInsets.fromLTRB(20.0, 14.0, 6.0, 0),
+                    child: const Text('FontPicker() configuration settings : ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  );
               },
-              isExpanded: configPanelExpanded,
+              isExpanded: configPanelExpanded!,
               canTapOnHeader : true,
           ),
           ],
         expansionCallback: (int item, bool status) {
           setState(() {
-            configPanelExpanded = !configPanelExpanded;
+            configPanelExpanded = !configPanelExpanded!;
           });
         },
       ),
       const SizedBox(height: 12),
    ];
-
   }
 
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;   
-print('Size = $size ');
+    final size = MediaQuery.of(context).size;   
+    print('Size = $size ');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -381,7 +415,7 @@ print('Size = $size ');
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    ...buildOptionsCustomizationPanel(context),
+                    ...buildFlexibleOptionsCustomizationPanel(context),
                     const Text(
                       'Examples of FontPicker() (using above settings):',
                       style: TextStyle(
@@ -458,58 +492,63 @@ print('Size = $size ');
                         );
                       },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Pick a font: ',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(fontWeight: FontWeight.w700),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: size.width>500 ? 500 : size.width,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Pick a font: ',
+                                textAlign: TextAlign.right,
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            readOnly: true,
-                            textAlign: TextAlign.center,
-                            style: _selectedFontTextStyle?.copyWith(fontSize:_fontPickerListFontSize),
-                            decoration: InputDecoration(
-                              suffixIcon: const Icon(Icons.arrow_drop_down_sharp),
-                              hintText: _selectedFont,
-                              border: InputBorder.none,
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FontPicker(
-                                    onFontChanged: (font) {
-                                      setState(() {
-                                        _selectedFont = font.fontFamily;
-                                        _selectedFontTextStyle = font.toTextStyle();
-                                      });
-                                      debugPrint(
-                                        "${font.fontFamily} with font weight ${font.fontWeight} and font style ${font.fontStyle}. FontSpec: ${font.toFontSpec()}",
-                                      );
-                                    },
-                                    googleFonts: _myGoogleFonts,
-                                    showFontVariants: _showFontVariants,
-                                    showFontInfo: _showFontInfo,
-                                    showListPreviewSampleTextInput: _showListPreviewSampleTextInput,
-                                    listPreviewSampleText: _listPreviewSampleText,
-                                    previewSampleTextFontSize: _sampleTextFontSize,
-                                    fontSizeForListPreview: _fontPickerListFontSize,
+                          Expanded(
+                            child: TextField(
+                              readOnly: true,
+                              textAlign: TextAlign.center,
+                              style: _selectedFontTextStyle?.copyWith(fontSize:_fontPickerListFontSize),
+                              decoration: InputDecoration(
+                                suffixIcon: const Icon(Icons.arrow_drop_down_sharp),
+                                hintText: _selectedFont,
+                                border: InputBorder.none,
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FontPicker(
+                                      onFontChanged: (font) {
+                                        setState(() {
+                                          _selectedFont = font.fontFamily;
+                                          _selectedFontTextStyle = font.toTextStyle();
+                                        });
+                                        debugPrint(
+                                          "${font.fontFamily} with font weight ${font.fontWeight} and font style ${font.fontStyle}. FontSpec: ${font.toFontSpec()}",
+                                        );
+                                      },
+                                      googleFonts: _myGoogleFonts,
+                                      showFontVariants: _showFontVariants,
+                                      showFontInfo: _showFontInfo,
+                                      showListPreviewSampleTextInput: _showListPreviewSampleTextInput,
+                                      listPreviewSampleText: _listPreviewSampleText,
+                                      previewSampleTextFontSize: _sampleTextFontSize,
+                                      fontSizeForListPreview: _fontPickerListFontSize,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
@@ -517,7 +556,7 @@ print('Size = $size ');
                     ),
                     ...Splittable.splittableRow(
                       context: context,
-                      splitOn: SplitOn<Slider>(),
+                      splitOn: Slider,
                       splitWidgetBehavior:SplitWidgetBehavior.includeInNextRow,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
