@@ -133,10 +133,10 @@ Future<void> main(List<String> args) async {
         negatable: false,
         help: 'Print help text and exit.',
     )
-    ..addFlag('legacylangauges',
+    ..addFlag('legacylanguages',
         abbr: 'l',
         negatable: false,
-        help: 'Include only legacy languages included in the existing constants.dart.',
+        help: 'Include only legacy languages included in the existing constants.dart. The array `googleFontLanguagesCompleteList` will be included with complete langauge list.',
     )    
     ..addOption('googlefontslist',
         abbr: 'g',
@@ -167,7 +167,7 @@ Future<void> main(List<String> args) async {
     exit(0);
   }
 
-  final legacyLanguageFlag = results['legacylangauges'] as bool;
+  final legacyLanguageFlag = results['legacylanguages'] as bool;
   final googleFontsListFile = results['googlefontslist'];
   final suppliedFontList = (googleFontsListFile != 'missing');
   final inputJsonFilename = results['inputjsonfile'];
@@ -500,11 +500,14 @@ Future<void> main(List<String> args) async {
     for(final language in googleFontLanguages) {
       constantsContent.writeln("\t'$language',");
     }
-  } else {
-    constantsContent.writeln("\t'all',");   // this is OUR special category for flutter_font_picker
-    for(final language in allEncountedLanguageSubsets) {
-      constantsContent.writeln("\t'$language',");
-    }
+    constantsContent.writeln('];');
+    constantsContent.writeln();
+    constantsContent.writeln('const googleFontLanguagesCompleteList = [');
+  }
+  // Now write the complete language list  
+  constantsContent.writeln("\t'all',");   // this is OUR special category for flutter_font_picker
+  for(final language in allEncountedLanguageSubsets) {
+    constantsContent.writeln("\t'$language',");
   }
   constantsContent.writeln('];');
   constantsContent.writeln();
