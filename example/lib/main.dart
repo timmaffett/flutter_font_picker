@@ -7,7 +7,7 @@ import 'package:device_preview/device_preview.dart'; // required when useDeviceP
 import 'flexible.dart';
 
 /// Set [useDevicePreview] to allow testing layouts on virtual device screens
-const useDevicePreview = false;
+const useDevicePreview = true;
 
 void main() {
   if(useDevicePreview) {
@@ -54,6 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showFontVariants = true;
 
   bool _showFontInfo = true;
+
+  bool _showFavoriteButtons = true;
 
   bool _showListPreviewSampleTextInput = false;
 
@@ -232,6 +234,30 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ],
+              ),
+                           ...Splittable.splittableRow(
+                context: context,
+                splitEveryN: 4,
+                splitWidgetBehavior:SplitWidgetBehavior.exclude,
+                mainAxisAlignment: mainAxisAlignment,
+                children: <Widget>[
+                  const Text(
+                    'Support favorite fonts :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Checkbox(
+                    value: _showFavoriteButtons,
+                    onChanged: (checked) {
+                      setState(() {
+                        _showFavoriteButtons = checked ?? false;
+                      });
+                    },
+                  ),
+                 ],
               ),
              ...Splittable.splittableRow(
                 context: context,
@@ -447,7 +473,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               listPreviewSampleText: _listPreviewSampleText,
                               previewSampleTextFontSize: _sampleTextFontSize,
                               fontSizeForListPreview: _fontPickerListFontSize,
-
+                              showFavoriteButtons: _showFavoriteButtons,
                             ),
                           ),
                         );
@@ -483,6 +509,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     listPreviewSampleText: _listPreviewSampleText,
                                     previewSampleTextFontSize: _sampleTextFontSize,
                                     fontSizeForListPreview: _fontPickerListFontSize,
+                                    showFavoriteButtons : _showFavoriteButtons,
                                   ),
                                 ),
                               ),
@@ -540,6 +567,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       listPreviewSampleText: _listPreviewSampleText,
                                       previewSampleTextFontSize: _sampleTextFontSize,
                                       fontSizeForListPreview: _fontPickerListFontSize,
+                                      showFavoriteButtons : _showFavoriteButtons,
                                     ),
                                   ),
                                 );
